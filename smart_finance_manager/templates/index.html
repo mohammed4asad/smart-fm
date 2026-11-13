@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Smart Finance Manager</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <aside id="sidebar">
+    <div class="brand"><span class="logo">$</span><span>Smart Finance<br>Manager</span></div>
+    <nav>
+      <button data-page="dashboard" class="active">Dashboard</button>
+      <button data-page="income">Income</button>
+      <button data-page="expenses">Expenses</button>
+      <button data-page="ledger">Ledger</button>
+      <button data-page="reports">Reports</button>
+      <button data-page="savings">Savings</button>
+    </nav>
+    <div class="side-foot">
+      <p>Demo tools (fictional data)</p>
+      <button class="btn ghost" id="seedBtn">Load sample data</button>
+      <button class="btn ghost" id="clearBtn">Clear all data</button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button id="menu" aria-label="Toggle navigation">&#9776;</button>
+      <h1 id="title">Dashboard</h1>
+      <button class="btn primary" id="quickAdd">+ Add transaction</button>
+    </header>
+
+    <main>
+      <!-- Dashboard -->
+      <section class="page" id="page-dashboard">
+        <div class="cards">
+          <div class="card stat"><span>Total income</span><strong id="c-income">-</strong></div>
+          <div class="card stat"><span>Total expenses</span><strong id="c-expenses">-</strong></div>
+          <div class="card stat hero"><span>Current balance</span><strong id="c-balance">-</strong></div>
+          <div class="card stat"><span>Total savings</span><strong id="c-savings">-</strong></div>
+        </div>
+        <div class="grid two">
+          <div class="card"><h2>Monthly overview (last 6 months)</h2><div class="chart"><canvas id="dashBar"></canvas></div></div>
+          <div class="card">
+            <h2>Savings goal</h2>
+            <p class="muted" id="d-goalname"></p>
+            <div class="progress"><div id="d-bar"></div></div>
+            <p><strong id="d-pct">0%</strong> <span class="muted" id="d-goaltext"></span></p>
+            <h2 class="gap">Spending by category</h2>
+            <div class="chart small"><canvas id="dashPie"></canvas></div>
+          </div>
+        </div>
+        <div class="card"><h2>Recent transactions</h2><div id="recent" class="table-wrap"></div></div>
+      </section>
+
+      <!-- Income -->
+      <section class="page" id="page-income" hidden>
+        <div class="card">
+          <div class="bar-row"><h2>Income records <span class="muted" id="incTotal"></span></h2>
+            <button class="btn primary" data-add="income">+ Add income</button></div>
+          <div id="incomeList" class="table-wrap"></div>
+        </div>
+      </section>
+
+      <!-- Expenses -->
+      <section class="page" id="page-expenses" hidden>
+        <div class="card">
+          <div class="bar-row"><h2>Expense records <span class="muted" id="expTotal"></span></h2>
+            <button class="btn primary" data-add="expense">+ Add expense</button></div>
+          <div id="expenseList" class="table-wrap"></div>
+        </div>
+      </section>
+
+      <!-- Ledger -->
+      <section class="page" id="page-ledger" hidden>
+        <div class="card">
+          <div class="filters">
+            <input id="fQ" type="search" placeholder="Search description or category" aria-label="Search">
+            <select id="fType" aria-label="Type"><option value="">All types</option><option value="income">Income</option><option value="expense">Expense</option><option value="savings">Savings</option></select>
+            <select id="fCat" aria-label="Category"></select>
+            <input id="fStart" type="date" aria-label="From date">
+            <input id="fEnd" type="date" aria-label="To date">
+            <button class="btn ghost dark" id="fReset">Reset</button>
+          </div>
+          <div id="ledgerList" class="table-wrap"></div>
+        </div>
+      </section>
+
+      <!-- Reports -->
+      <section class="page" id="page-reports" hidden>
+        <div class="card bar-row">
+          <div class="filters inline">
+            <label>Year <select id="repYear"></select></label>
+            <label>Month <select id="repMonth"></select></label>
+          </div>
+          <a class="btn primary" id="exportBtn" href="#">Export CSV</a>
+        </div>
+        <div class="cards three">
+          <div class="card stat"><span>Income (period)</span><strong id="r-income">-</strong></div>
+          <div class="card stat"><span>Expenses (period)</span><strong id="r-expenses">-</strong></div>
+          <div class="card stat"><span>Net (after savings)</span><strong id="r-net">-</strong></div>
+        </div>
+        <div class="grid two">
+          <div class="card"><h2>Income vs expenses by month</h2><div class="chart"><canvas id="repBar"></canvas></div></div>
+          <div class="card"><h2>Expense categories</h2><div class="chart"><canvas id="repPie"></canvas></div></div>
+        </div>
+        <div class="card"><h2>Monthly summary</h2><div id="repTable" class="table-wrap"></div></div>
+      </section>
+
+      <!-- Savings -->
+      <section class="page" id="page-savings" hidden>
+        <div class="grid two">
+          <div class="card">
+            <h2>Savings goal</h2>
+            <form id="goalForm" class="stack">
+              <label>Goal name <input name="name" maxlength="60" required></label>
+              <label>Target amount <input name="target" type="number" min="0.01" step="0.01" required></label>
+              <button class="btn primary" type="submit">Save goal</button>
+            </form>
+          </div>
+          <div class="card">
+            <h2>Progress</h2>
+            <div class="progress big"><div id="s-bar"></div></div>
+            <p class="pct"><strong id="s-pct">0%</strong> completed</p>
+            <p class="muted" id="s-text"></p>
+            <button class="btn primary" data-add="savings">+ Add to savings</button>
+          </div>
+        </div>
+        <div class="card"><h2>Savings contributions</h2><div id="savingsList" class="table-wrap"></div></div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="modal">
+    <form id="txForm" novalidate>
+      <h2 id="modalTitle">Add transaction</h2>
+      <input type="hidden" name="tid">
+      <label>Type <select name="ttype"><option value="income">Income</option><option value="expense">Expense</option><option value="savings">Savings</option></select></label>
+      <label><span id="catLabel">Category</span>
+        <select name="tcat" id="tcatSel"></select>
+        <input name="tcatText" id="tcatTxt" maxlength="40" placeholder="e.g. Salary, Freelance" list="srcList" hidden>
+        <datalist id="srcList"></datalist>
+      </label>
+      <label>Amount <input name="tamount" type="number" min="0.01" step="0.01" required></label>
+      <label>Date <input name="tdate" type="date" required></label>
+      <label>Description <input name="tdesc" maxlength="200" placeholder="Optional note"></label>
+      <p class="error" id="formError" role="alert"></p>
+      <div class="actions"><button type="button" class="btn ghost dark" id="cancelBtn">Cancel</button><button class="btn primary" type="submit">Save</button></div>
+    </form>
+  </dialog>
+  <div id="toast" role="status"></div>
+
+  <script>window.CFG = {{ cfg|tojson }};</script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
